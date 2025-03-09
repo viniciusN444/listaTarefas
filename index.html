@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas 2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: white;
+        }
+
+        .container {
+            background-color: purple;
+            border-radius: 10px;
+            width: 400px;
+            height: 99%;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-flow: column nowrap;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #mensagem {
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        button,
+        input {
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        input {
+            outline: none;
+        }
+
+        ul {
+            color: white;
+            list-style-position: inside;
+            margin-top: 10px;
+            line-height: 25px;
+        }
+
+        .btnRemover {
+            padding: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="InpuTarefas">
+            <h1>Lista de Tarefas</h1>
+            <input type="text" id="txtTarefa" placeholder="Digite uma tarefa">
+            <button id="btnAdicionar">Adicionar Tarefa</button>
+            <ul class="containerLista"></ul>
+        </div>
+        <div id="mensagem"></div>
+    </div>
+
+    <script>
+        const btnAdicionar = document.querySelector('#btnAdicionar');
+        const containerLista = document.querySelector('.containerLista');
+        const mensagem = document.querySelector('#mensagem');
+
+        // Recupera tarefas salvas no localStorage
+        let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+
+        function salvarTarefas() {
+            localStorage.setItem('tarefas', JSON.stringify(tarefas));
+        }
+
+        function carregarTarefas() {
+            tarefas.forEach(tarefa => criarElementoTarefa(tarefa));
+        }
+
+        function criarElementoTarefa(tarefa) {
+            let item = document.createElement('li');
+            item.textContent = tarefa;
+
+            let btnRemover = document.createElement('button');
+            btnRemover.textContent = 'Remover';
+            btnRemover.classList.add('btnRemover');
+
+            btnRemover.addEventListener('click', function () {
+                removerTarefa(tarefa, item);
+            });
+
+            item.appendChild(btnRemover);
+            containerLista.appendChild(item);
+        }
+
+        function adicionar() {
+            let txtTarefa = document.querySelector('#txtTarefa');
+            let tarefa = txtTarefa.value.trim().toLowerCase();
+
+            if (tarefa === '') {
+                mensagem.textContent = 'Digite uma tarefa antes de adicionar!';
+                setTimeout(() => mensagem.textContent = '', 1500);
+                return;
+            }
+
+            if (tarefas.includes(tarefa)) {
+                mensagem.textContent = 'Tarefa já existente!';
+                setTimeout(() => mensagem.textContent = '', 1500);
+                return;
+            }
+
+            tarefas.push(tarefa);
+            salvarTarefas();
+            criarElementoTarefa(tarefa);
+
+            txtTarefa.value = '';
+            txtTarefa.focus();
+        }
+
+        function removerTarefa(tarefa, item) {
+            tarefas = tarefas.filter(t => t !== tarefa);
+            salvarTarefas();
+            item.remove();
+        }
+
+        btnAdicionar.addEventListener('click', adicionar);
+
+        // Carrega tarefas ao iniciar
+        carregarTarefas();
+    </script>
+</body>
+
+</html>
